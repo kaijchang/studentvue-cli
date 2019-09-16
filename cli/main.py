@@ -1,7 +1,6 @@
 import curses
 from curses import wrapper
 
-from colorama import init, Fore, Back, Style
 import threading
 
 from .Menu import Menu
@@ -48,7 +47,6 @@ class MarqueeThread(threading.Thread):
 class Jasper:
     def __init__(self, stdscreen):
         self.screen = stdscreen
-        init()
         curses.curs_set(0)
 
         menu_thread = MenuThread(stdscreen)
