@@ -1,47 +1,30 @@
 import curses
 from curses import wrapper
 
+import os
 import threading
+from studentvue import StudentVue
 
 from .Menu import Menu
 from .Marquee import Marquee
 
 
-stop_event = threading.Event()
+def run_menu(studentvue, stop_event, screen):
+    schedule_items = [(course.name, lambda: None) for course in studentvue.get_schedule()]
+    schedule = Menu(schedule_items, stop_event, screen, submenu=True)
+
+    main_menu_items = [
+        ('SCHEDULE', schedule.display),
+    ]
+
+    main_menu = Menu(main_menu_items, stop_event, screen)
+    main_menu.display()
 
 
-class MenuThread(threading.Thread):
-    def __init__(self, stdscreen):
-        super().__init__()
-        self.screen = stdscreen
-
-    def run(self):
-        submenu_items = [
-            ('beep', curses.beep),
-            ('flash', curses.flash)
-        ]
-        submenu = Menu(submenu_items, self.screen, True)
-
-        main_menu_items = [
-            ('beep', curses.beep),
-            ('flash', curses.flash),
-            ('submenu', submenu.display),
-            ('exit', stop_event.set)
-        ]
-
-        main_menu = Menu(main_menu_items, self.screen)
-        main_menu.display()
-
-
-class MarqueeThread(threading.Thread):
-    def __init__(self, stdscreen, stop_event):
-        super().__init__()
-        self.screen = stdscreen
-        self.stop_event = stop_event
-
-    def run(self):
-        marquee = Marquee('StudentVue - by Kai Chang', 1, self.screen, self.stop_event)
-        marquee.display()
+def run_marquee(studentvue, stop_event, screen):
+    marquee = Marquee('Name: %s - StudentVue - ID: %s' % (studentvue.name, studentvue.id_),
+                      1, screen, stop_event)
+    marquee.display()
 
 
 class Jasper:
@@ -49,11 +32,21 @@ class Jasper:
         self.screen = stdscreen
         curses.curs_set(0)
 
-        menu_thread = MenuThread(stdscreen)
+        y, x = stdscreen.getmaxyx()
+        curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_WHITE)
+        stdscreen.addstr(round(y / 3), round(x / 2), 'Loading...', curses.color_pair(1))
+        stdscreen.refresh()
+
+        credentials = (os.environ['STUDENTVUE_USER'], os.environ['STUDENTVUE_PASS'], os.environ['STUDENTVUE_DOMAIN'])
+        studentvue = StudentVue(*credentials)
+
+        stop_event = threading.Event()
+
+        menu_thread = threading.Thread(target=run_menu, args=(studentvue, stop_event, stdscreen))
         menu_thread.setDaemon(True)
         menu_thread.start()
 
-        marquee_thread = MarqueeThread(stdscreen, stop_event)
+        marquee_thread = threading.Thread(target=run_marquee, args=(studentvue, stop_event, stdscreen))
         marquee_thread.setDaemon(True)
         marquee_thread.start()
 

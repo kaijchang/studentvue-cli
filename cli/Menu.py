@@ -4,7 +4,7 @@ from curses import panel
 
 # https://stackoverflow.com/a/14205494
 class Menu:
-    def __init__(self, items, stdscreen, submenu=False):
+    def __init__(self, items, stop_event, stdscreen, submenu=False):
         self.window = stdscreen.subwin(1, 0)
         self.window.keypad(True)
         self.panel = panel.new_panel(self.window)
@@ -13,8 +13,12 @@ class Menu:
 
         self.position = 0
         self.items = items
+        self.stop_event = stop_event
+
         if submenu:
-            self.items.append(('exit', 'exit'))
+            self.items.append(('BACK', 'BACK'))
+        else:
+            self.items.append(('EXIT', 'EXIT'))
 
     def navigate(self, n):
         self.position += n
@@ -44,8 +48,10 @@ class Menu:
 
             if key in [curses.KEY_ENTER, ord('\n')]:
                 action = self.items[self.position][1]
-                if action == 'exit':
+                if action == 'BACK':
                     break
+                elif action == 'EXIT':
+                    self.stop_event.set()
                 else:
                     action()
 

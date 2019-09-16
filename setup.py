@@ -4,5 +4,6 @@ setup(
     name='studentvue-cli',
     entry_points={
         'console_scripts': ['studentvue=cli.main:main'],
-    }
+    },
+    install_requires=['studentvue']
 )
