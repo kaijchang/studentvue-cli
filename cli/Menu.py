@@ -32,7 +32,7 @@ class Menu:
         self.panel.show()
         self.window.clear()
 
-        while True:
+        while not self.stop_event.is_set():
             self.window.refresh()
 
             for index, item in enumerate(self.items):

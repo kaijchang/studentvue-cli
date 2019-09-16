@@ -10,11 +10,28 @@ from .Marquee import Marquee
 
 
 def run_menu(studentvue, stop_event, screen):
-    schedule_items = [(course.name, lambda: None) for course in studentvue.get_schedule()]
-    schedule = Menu(schedule_items, stop_event, screen, submenu=True)
+    schedule_menu_items = []
+    schedule = studentvue.get_schedule()
+    for class_ in schedule:
+        class_info = studentvue.get_class_info(class_)
+        class_menu_items = []
+        if class_info is not None:
+            for assignment in class_info['assignments']:
+                assignment_menu_items = [
+                    ('Name: %s' % assignment.name, lambda: None),
+                    ('Due Date: %s' % assignment.date.strftime('%x'), lambda: None),
+                    ('Score: %s/%s' % (assignment.score, assignment.max_score), lambda: None)
+                ]
+                assignment_menu = Menu(assignment_menu_items, stop_event, screen, submenu=True)
+                class_menu_items.append(('%s: %s' % (assignment.date.strftime('%x'), assignment.name),
+                                         assignment_menu.display))
+        class_menu = Menu(class_menu_items, stop_event, screen, submenu=True)
+        schedule_menu_items.append(('%s: %s' % (class_.period, class_.name), class_menu.display))
+
+    schedule_menu = Menu(schedule_menu_items, stop_event, screen, submenu=True)
 
     main_menu_items = [
-        ('SCHEDULE', schedule.display),
+        ('SCHEDULE', schedule_menu.display),
     ]
 
     main_menu = Menu(main_menu_items, stop_event, screen)
