@@ -48,6 +48,8 @@ class Jasper:
     def __init__(self, stdscreen):
         self.screen = stdscreen
         curses.curs_set(0)
+        stdscreen.scrollok(False)
+        stdscreen.keypad(True)
 
         y, x = stdscreen.getmaxyx()
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_WHITE)
