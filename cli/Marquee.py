@@ -34,7 +34,6 @@ class Marquee:
 
             num_chars_to_show = self.parent.getmaxyx()[1] - self.scroll - 1
 
-            curses.init_pair(2, curses.COLOR_RED, curses.COLOR_WHITE)
             self.window.addstr(0, self.scroll, self.string[:num_chars_to_show], curses.color_pair(2))
 
             if num_chars_to_show < len(self.string):

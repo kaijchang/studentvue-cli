@@ -68,6 +68,7 @@ class Jasper:
         stdscreen.keypad(True)
 
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_WHITE)
+        curses.init_pair(2, curses.COLOR_RED, curses.COLOR_WHITE)
         start_load(stdscreen)
 
         credentials = (os.environ['STUDENTVUE_USER'], os.environ['STUDENTVUE_PASS'], os.environ['STUDENTVUE_DOMAIN'])
