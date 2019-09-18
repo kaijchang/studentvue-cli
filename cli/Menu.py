@@ -16,9 +16,9 @@ class Menu:
         self.stop_event = stop_event
 
         if submenu:
-            self.items.append(('BACK', 'BACK'))
+            self.items.append(('Back', 'BACK'))
         else:
-            self.items.append(('EXIT', 'EXIT'))
+            self.items.append(('Exit', 'EXIT'))
 
     def navigate(self, n):
         self.position += n

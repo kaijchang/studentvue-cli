@@ -35,12 +35,11 @@ def run_menu(studentvue, stop_event, screen):
                     class_menu_items.append(('%s: %s' % (assignment.date.strftime('%x'), assignment.name),
                                              assignment_menu.display))
                 class_menu = Menu(class_menu_items, stop_event, screen, submenu=True)
-                cache[class_.name] = class_menu
                 class_menu.display()
             else:
                 screen.clear()
                 y, x = screen.getmaxyx()
-                string = 'The Class Has No Grades'
+                string = 'This Class Has No Grades'
                 screen.addstr(round(y / 3), round(x / 2 - len(string) / 2), string, curses.color_pair(2))
                 screen.refresh()
                 time.sleep(1)
@@ -55,7 +54,7 @@ def run_menu(studentvue, stop_event, screen):
     schedule_menu = Menu(schedule_menu_items, stop_event, screen, submenu=True)
 
     main_menu_items = [
-        ('SCHEDULE', schedule_menu.display),
+        ('Schedule', schedule_menu.display),
     ]
 
     main_menu = Menu(main_menu_items, stop_event, screen)
