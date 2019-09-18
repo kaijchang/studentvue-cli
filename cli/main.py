@@ -2,6 +2,7 @@ import curses
 from curses import wrapper
 
 import os
+import time
 import threading
 from studentvue import StudentVue
 
@@ -16,23 +17,36 @@ def run_menu(studentvue, stop_event, screen):
         def wrapped():
             start_load(screen)
             if class_.name in cache:
-                cache[class_.name].display()
+                class_info = cache[class_.name]
             else:
                 class_info = studentvue.get_class_info(class_)
-                class_menu_items = []
-                if class_info is not None:
-                    for assignment in class_info['assignments']:
-                        assignment_menu_items = [
-                            ('Name: %s' % assignment.name, lambda: None),
-                            ('Due Date: %s' % assignment.date.strftime('%x'), lambda: None),
-                            ('Score: %s/%s' % (assignment.score, assignment.max_score), lambda: None)
-                        ]
-                        assignment_menu = Menu(assignment_menu_items, stop_event, screen, submenu=True)
-                        class_menu_items.append(('%s: %s' % (assignment.date.strftime('%x'), assignment.name),
-                                                 assignment_menu.display))
+                cache[class_.name] = class_info
+
+            if class_info is not None:
+                class_menu_items = [('%s: %s | %d%% | %s' % (class_.period, class_.name, class_info['score'],
+                                                             class_info['mark']), lambda: None)]
+                for assignment in class_info['assignments']:
+                    assignment_menu_items = [
+                        ('Name: %s' % assignment.name, lambda: None),
+                        ('Due Date: %s' % assignment.date.strftime('%x'), lambda: None),
+                        ('Score: %s/%s' % (assignment.score, assignment.max_score), lambda: None)
+                    ]
+                    assignment_menu = Menu(assignment_menu_items, stop_event, screen, submenu=True)
+                    class_menu_items.append(('%s: %s' % (assignment.date.strftime('%x'), assignment.name),
+                                             assignment_menu.display))
                 class_menu = Menu(class_menu_items, stop_event, screen, submenu=True)
                 cache[class_.name] = class_menu
                 class_menu.display()
+            else:
+                screen.clear()
+                y, x = screen.getmaxyx()
+                string = 'The Class Has No Grades'
+                screen.addstr(round(y / 3), round(x / 2 - len(string) / 2), string, curses.color_pair(2))
+                screen.refresh()
+                time.sleep(1)
+                screen.clear()
+                screen.refresh()
+
         return wrapped
 
     schedule = studentvue.get_schedule()
@@ -55,8 +69,10 @@ def run_marquee(studentvue, stop_event, screen):
 
 
 def start_load(stdscreen):
+    stdscreen.clear()
     y, x = stdscreen.getmaxyx()
-    stdscreen.addstr(round(y / 3), round(x / 2), 'Loading...', curses.color_pair(1))
+    string = 'Loading...'
+    stdscreen.addstr(round(y / 3), round(x / 2 - len(string) / 2), string, curses.color_pair(1))
     stdscreen.refresh()
 
 
